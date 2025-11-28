@@ -29,12 +29,16 @@ app.use(cookieParser());
 
 
 
-if (process.env.NODE_ENV !== 'production') {
-  app.use(cors({
-      origin: "http://localhost:5173",
-      credentials: true,
-  }));
-}
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.FRONTEND_URL
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
+
 
 // STATIC UPLOAD FOLDER
 app.use(

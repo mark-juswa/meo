@@ -1,6 +1,3 @@
-// CONTROLLER PARA REGISTER, LOGIN ETC..
-
-
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -83,8 +80,9 @@ export const login = async (req, res) => {
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "Strict",
+            secure: true,
+            sameSite: "None",   // ← required for frontend hosted separately
+            path: "/",
         });
 
         res.status(200).json({ 
