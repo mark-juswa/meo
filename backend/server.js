@@ -35,7 +35,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://<your-frontend>.onrender.com"
+      "https://meo-online-services.onrender.com"
     ],
     credentials: true,
   })
@@ -66,14 +66,12 @@ app.use('/api/events', eventRoutes);
 
 
 
-if (process.env.NODE_ENV === 'production') {
-  const __dirname = path.resolve();
-
+if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-  app.get("*", (req, res) =>
-    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"))
-  );
+  app.get(/.*/, (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+  });
 }
 
 
