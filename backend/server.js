@@ -67,14 +67,15 @@ app.use('/api/events', eventRoutes);
 
 
 if (process.env.NODE_ENV === 'production') {
-    const buildPath = path.join(__dirname, '../frontend/dist');
-    
-    app.use(express.static(buildPath));
+  const __dirname = path.resolve();
 
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(buildPath, 'index.html'));
-    });
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  app.get("*", (req, res) =>
+    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"))
+  );
 }
+
 
 
 // CONNECT DB
