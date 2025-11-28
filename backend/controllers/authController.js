@@ -142,11 +142,12 @@ export const refreshToken = async (req, res) => {
 
 export const logout = (req, res) => {
     try {
-        res.clearCookie("refreshToken", {
+       res.clearCookie("refreshToken", {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "Strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000,
+            secure: true,       // ✅ Must match login
+            sameSite: "None",   // ✅ Must match login
+            path: "/",          // ✅ Must match login
+            // maxAge and expires are not required for clearCookie, but path/domain/secure/sameSite must match.
         });
         return res.status(200).json({ message: "Logged out successfully" });
 
