@@ -51,9 +51,13 @@ app.use((req, res, next) => {
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src 'self' data: https://fonts.gstatic.com;
     img-src 'self' data: blob: https:;
-    connect-src 'self' https://meo-online-services.onrender.com;
+    connect-src 
+        'self'
+        https://meo-online-services.onrender.com
+        https://www.google-analytics.com;
+    frame-src 'self';
     `
-      .replace(/\s{2,}/g, " ") // clean spacing
+      .replace(/\s{2,}/g, " ")
       .trim()
   );
   next();
