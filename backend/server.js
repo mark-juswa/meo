@@ -5,7 +5,7 @@ import { connectDB } from './config/db.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { EventEmitter } from 'events';
-
+import { fileURLToPath } from 'url';
 
 // ROUTES
 import authRoutes from './routes/auth.js';
@@ -20,7 +20,9 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 const app = express();
-const __dirname = path.resolve();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // MIDDLEWARE
 app.use(express.json());
@@ -29,15 +31,15 @@ app.use(cookieParser());
 
 
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  process.env.FRONTEND_URL
-];
-
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://<your-frontend>.onrender.com"
+    ],
+    credentials: true,
+  })
+);
 
 
 // STATIC UPLOAD FOLDER
@@ -56,12 +58,13 @@ app.use('/api/events', eventRoutes);
 
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+    const buildPath = path.join(__dirname, '../frontend/dist');
+    
+    app.use(express.static(buildPath));
 
-  app.get(/.*/, (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
-  });
-
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(buildPath, 'index.html'));
+    });
 }
 
 // CONNECT DB
