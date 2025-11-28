@@ -42,6 +42,15 @@ app.use(
 );
 
 
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https://meo-online-services.onrender.com;"
+  );
+  next();
+});
+
+
 // STATIC UPLOAD FOLDER
 app.use(
     '/uploads',
@@ -66,6 +75,7 @@ if (process.env.NODE_ENV === 'production') {
         res.sendFile(path.join(buildPath, 'index.html'));
     });
 }
+
 
 // CONNECT DB
 connectDB();
