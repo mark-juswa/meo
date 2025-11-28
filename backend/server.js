@@ -45,10 +45,20 @@ app.use(
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https://meo-online-services.onrender.com;"
+    `
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src 'self' data: https://fonts.gstatic.com;
+    img-src 'self' data: blob: https:;
+    connect-src 'self' https://meo-online-services.onrender.com;
+    `
+      .replace(/\s{2,}/g, " ") // clean spacing
+      .trim()
   );
   next();
 });
+
 
 
 // STATIC UPLOAD FOLDER
