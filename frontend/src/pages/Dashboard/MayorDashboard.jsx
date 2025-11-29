@@ -1,4 +1,3 @@
-// MayorDashboard.jsx (robust handled detection + fallback regex)
 import React, { useState, useEffect, useMemo } from "react";
 
 import ApplicationTable from "../components/application/ApplicationTable.jsx";
@@ -25,25 +24,21 @@ export default function MayorDashboard() {
   const [selectedApp, setSelectedApp] = useState(null);
   const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
 
-  // Regex for fallback mayor detection in comments 
   const mayorRegex = /\bmayor\b|\bendorse(ment|ed|)\b|\bmayor permit\b|\bendorse(ed)? by mayor\b/;
 
 
   function isHandledByMayor(app) {
-    // 1) structured handledBy flag (recommended)
-    if (Array.isArray(app.handledBy) && app.handledBy.includes("mayor")) return true;
+  return (app.workflowHistory || []).some(h => {
+    const comments = (h.comments || "").toLowerCase();
+    return (
+      h.role === "mayoradmin" ||
+      h.actorRole === "mayoradmin" ||
+      comments.includes("mayor") ||
+      comments.includes("endorse")
+    );
+  });
+}
 
-    // 2) workflowHistory with structured role/actorRole
-    if (Array.isArray(app.workflowHistory)) {
-      if (app.workflowHistory.some(h => (h.role === "mayoradmin" || h.actorRole === "mayoradmin"))) return true;
-    }
-
-    // 3) fallback: search comments for mayor keywords
-    const commentsStr = (app.workflowHistory || []).map(h => (h.comments || "")).join(" ").toLowerCase();
-    if (mayorRegex.test(commentsStr)) return true;
-
-    return false;
-  }
 
   // Fetch Data
   const fetchData = async () => {
@@ -56,16 +51,28 @@ export default function MayorDashboard() {
 
       const allApps = appsRes.data?.applications || [];
 
+
+      // FILTER MAYOR RELATED APPLICATIONS
       const mayorApps = allApps.filter(app => {
-        const status = app.status;
+      const status = app.status;
+      const inMayorQueue = status === "Pending Mayor";
 
-        const inMayorQueue = status === "Pending Mayor";
+      const hasMayorAction =
+        (app.workflowHistory || []).some(h =>
+          (h.role === "mayoradmin") ||
+          (h.actorRole === "mayoradmin") ||
+          (h.comments || "").toLowerCase().includes("mayor") ||
+          (h.comments || "").toLowerCase().includes("endorse")
+        );
 
-        const forwardedStatuses = ["Pending MEO", "Approved", "Permit Issued", "Rejected"];
-        const forwardedButMayorInvolved = forwardedStatuses.includes(status) && isHandledByMayor(app);
+      const forwardedToOtherOffices =
+        ["Pending MEO", "Approved", "Permit Issued", "Rejected"].includes(status);
 
-        return inMayorQueue || forwardedButMayorInvolved;
-      });
+      const forwardedButHandled = forwardedToOtherOffices && hasMayorAction;
+
+      return inMayorQueue || forwardedButHandled;
+    });
+
 
       setApplications(mayorApps);
       setEvents(eventsRes.data?.events || []);
@@ -102,6 +109,7 @@ export default function MayorDashboard() {
 
     return { toApprove, endorsed, completed, total };
   }, [applications]);
+
 
   // --- Filtered list by search ---
   const filteredApplications = useMemo(() => {

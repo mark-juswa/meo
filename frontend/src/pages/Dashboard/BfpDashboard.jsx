@@ -38,19 +38,22 @@ export default function BfpDashboard() {
 
     const all = appsRes.data?.applications || [];
 
-    // Filter Only BFP-relevant applications
+
+    // FILTER BFP RELATED APPLICATIONS
     const bfpApps = all.filter(app => {
-      const commentsStr = app.workflowHistory?.map(h => h.comments?.toLowerCase() || "").join(" ") || "";
       const status = app.status;
+      const history = app.workflowHistory || [];
 
-      const bfpQueue = status === "Pending BFP";
+      const hasBfpAction = history.some(h =>
+        (h.comments || "").toLowerCase().includes("bfp")
+      );
 
-      const bfpHandled =
-        ["Pending Mayor", "Pending MEO", "Approved", "Permit Issued", "Rejected"].includes(status)
-        && commentsStr.includes("bfp");
-
-      return bfpQueue || bfpHandled;
+      return (
+        status === "Pending BFP" ||   
+        hasBfpAction             
+      );
     });
+
 
 
 
