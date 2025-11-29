@@ -81,7 +81,7 @@ export const login = async (req, res) => {
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: true,
-            sameSite: "None",   // ← required for frontend hosted separately
+            sameSite: "None",
             path: "/",
         });
 
@@ -144,10 +144,10 @@ export const logout = (req, res) => {
     try {
        res.clearCookie("refreshToken", {
             httpOnly: true,
-            secure: true,       // ✅ Must match login
-            sameSite: "None",   // ✅ Must match login
-            path: "/",          // ✅ Must match login
-            // maxAge and expires are not required for clearCookie, but path/domain/secure/sameSite must match.
+            secure: true,   
+            sameSite: "None",  
+            path: "/",         
+
         });
         return res.status(200).json({ message: "Logged out successfully" });
 
